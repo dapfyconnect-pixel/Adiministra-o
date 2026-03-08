@@ -13,43 +13,51 @@
         :root { --admin-bg: #0f172a; --accent: #6366f1; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding-top: 80px; }
 
+        /* Tela de Login */
+        #loginOverlay { position: fixed; inset: 0; background: var(--admin-bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-card { background: white; width: 100%; max-width: 400px; border-radius: 28px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .btn-login { background: var(--accent); color: white; border-radius: 16px; padding: 16px; font-weight: 700; width: 100%; border: none; margin-top: 20px; }
+
+        /* Estilos do Painel (Seu original) */
         .admin-header { position: fixed; top: 0; width: 100%; background: var(--admin-bg); padding: 12px 0; z-index: 2000; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-        
         .search-container { background: white; border-radius: 15px; padding: 12px 15px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         .search-container input { border: none; outline: none; width: 100%; font-size: 0.9rem; }
-
         .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
         .kpi-card { background: white; border-radius: 20px; padding: 16px; border: 1px solid #e2e8f0; }
-        .kpi-card small { font-size: 0.65rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
         .kpi-card h3 { font-size: 1.1rem; font-weight: 700; margin-top: 5px; }
-
-        /* Estilo do Card Vertical */
-        .lojista-card { background: white; border-radius: 22px; padding: 20px; margin-bottom: 15px; border: 1px solid #eceef2; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .lojista-card { background: white; border-radius: 22px; padding: 20px; margin-bottom: 15px; border: 1px solid #eceef2; }
         .card-top { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .avatar-box { width: 50px; height: 50px; background: #eef2ff; color: var(--accent); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; }
-        
-        .info-box h6 { margin: 0; font-size: 1rem; font-weight: 700; color: var(--admin-bg); }
-        .info-box p { margin: 0; font-size: 0.8rem; color: #64748b; }
-        
-        .badge-status { font-size: 0.6rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; text-transform: uppercase; margin-top: 5px; display: inline-block; }
+        .avatar-box { width: 50px; height: 50px; background: #eef2ff; color: var(--accent); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+        .badge-status { font-size: 0.6rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; text-transform: uppercase; }
         .status-active { background: #dcfce7; color: #15803d; }
         .status-blocked { background: #fee2e2; color: #b91c1c; }
-
-        /* Container de botões abaixo do e-mail */
         .action-row { display: flex; gap: 10px; border-top: 1px solid #f1f5f9; padding-top: 15px; }
-        .btn-action { flex: 1; border-radius: 12px; padding: 10px; font-size: 0.8rem; font-weight: 700; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
-        .btn-action:active { transform: scale(0.96); }
-        
-        .btn-block { background: #fffbeb; color: var(--warning); border: 1px solid #fef3c7; }
-        .btn-unblock { background: #f0fdf4; color: var(--success); border: 1px solid #dcfce7; }
-        .btn-delete { background: #fef2f2; color: var(--danger); border: 1px solid #fee2e2; }
-
-        .filter-tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .filter-btn { border: 1px solid #e2e8f0; background: white; padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; color: #64748b; }
-        .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .btn-action { flex: 1; border-radius: 12px; padding: 10px; font-size: 0.8rem; font-weight: 700; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .filter-tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; }
+        .filter-btn { border: 1px solid #e2e8f0; background: white; padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+        .filter-btn.active { background: var(--accent); color: white; }
     </style>
 </head>
 <body>
+
+<div id="loginOverlay">
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <img src="https://i.ibb.co/Z1z4tSvj/1772903229417.png" alt="DAPfy" style="max-width: 80px; margin-bottom: 15px;">
+            <h4 class="fw-bold">Acesso Master</h4>
+            <p class="text-muted small">Entre com suas credenciais administrativas.</p>
+        </div>
+        <div class="mb-3">
+            <label class="form-label small fw-bold">E-mail</label>
+            <input type="email" id="emailMaster" class="form-control" placeholder="admin@dapfy.com">
+        </div>
+        <div class="mb-3">
+            <label class="form-label small fw-bold">Senha</label>
+            <input type="password" id="senhaMaster" class="form-control" placeholder="••••••••">
+        </div>
+        <button id="btnLogin" onclick="entrarMaster()" class="btn-login shadow">Entrar no Painel</button>
+    </div>
+</div>
 
 <header class="admin-header">
     <div class="container d-flex justify-content-between align-items-center px-4">
@@ -57,7 +65,7 @@
             <i class="bi bi-person-badge-fill text-info"></i>
             <span>DAPfy Master</span>
         </div>
-        <button onclick="location.reload()" class="btn btn-sm btn-dark rounded-circle"><i class="bi bi-arrow-clockwise"></i></button>
+        <button onclick="logout()" class="btn btn-sm btn-outline-light rounded-pill px-3">Sair</button>
     </div>
 </header>
 
@@ -85,7 +93,8 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyA7SbPIwTdTdxpuDHeV0onKi88XFLmdYyw",
@@ -97,20 +106,70 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
 
     let lojistasCache = [];
     let filtroStatus = 'todos';
 
-    onSnapshot(collection(db, "transacoes"), (snap) => {
-        const total = snap.docs.reduce((a, b) => a + (b.data().valor || 0), 0);
-        document.getElementById('totalVolume').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+    // --- FUNÇÃO DE LOGIN ---
+    window.entrarMaster = async () => {
+        const email = document.getElementById('emailMaster').value;
+        const senha = document.getElementById('senhaMaster').value;
+        const btn = document.getElementById('btnLogin');
+
+        if(!email || !senha) return alert("Preencha os campos!");
+
+        btn.disabled = true;
+        btn.innerText = "Verificando...";
+
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, senha);
+            const user = userCredential.user;
+
+            // Verifica status no Firestore
+            const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+            
+            if (userDoc.exists() && userDoc.data().status === 'ativo') {
+                document.getElementById('loginOverlay').style.display = 'none';
+                iniciarApp();
+            } else {
+                await signOut(auth);
+                alert("Acesso Negado: Sua conta não está ativa ou não é Master.");
+                location.reload();
+            }
+        } catch (e) {
+            alert("Erro de login: " + e.message);
+            btn.disabled = false;
+            btn.innerText = "Entrar no Painel";
+        }
+    };
+
+    // --- MONITOR DE SESSÃO ---
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+            if (userDoc.exists() && userDoc.data().status === 'ativo') {
+                document.getElementById('loginOverlay').style.display = 'none';
+                iniciarApp();
+            }
+        }
     });
 
-    onSnapshot(collection(db, "usuarios"), (snapshot) => {
-        lojistasCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderizar();
-    });
+    window.logout = () => signOut(auth).then(() => location.reload());
+
+    // --- LÓGICA DO PAINEL ---
+    function iniciarApp() {
+        onSnapshot(collection(db, "transacoes"), (snap) => {
+            const total = snap.docs.reduce((a, b) => a + (b.data().valor || 0), 0);
+            document.getElementById('totalVolume').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+        });
+
+        onSnapshot(collection(db, "usuarios"), (snapshot) => {
+            lojistasCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderizar();
+        });
+    }
 
     window.setFiltro = (s) => {
         filtroStatus = s;
@@ -124,35 +183,33 @@
         const termo = document.getElementById('inputBusca').value.toLowerCase();
         
         let filtrados = lojistasCache.filter(u => {
-            const matchBusca = u.nome.toLowerCase().includes(termo) || u.email.toLowerCase().includes(termo);
-            const matchStatus = filtroStatus === 'todos' || (u.status || 'ativo') === filtroStatus;
+            const matchBusca = (u.nome || "").toLowerCase().includes(termo) || (u.email || "").toLowerCase().includes(termo);
+            const matchStatus = filtroStatus === 'todos' || (u.status || 'pendente') === filtroStatus;
             return matchBusca && matchStatus;
         });
 
         document.getElementById('totalLojas').innerText = filtrados.length;
 
         lista.innerHTML = filtrados.map(u => {
-            const status = u.status || 'ativo';
+            const status = u.status || 'pendente';
             const isAtivo = status === 'ativo';
             return `
-            <div class="lojista-card">
+            <div class="lojista-card shadow-sm">
                 <div class="card-top">
-                    <div class="avatar-box">${u.nome.charAt(0).toUpperCase()}</div>
+                    <div class="avatar-box">${(u.nome || "U").charAt(0).toUpperCase()}</div>
                     <div class="info-box">
-                        <h6>${u.nome}</h6>
+                        <h6>${u.nome || 'Sem Nome'}</h6>
                         <p>${u.email}</p>
                         <span class="badge-status ${isAtivo ? 'status-active' : 'status-blocked'}">${status}</span>
                     </div>
                 </div>
-                
                 <div class="action-row">
                     <button onclick="toggleStatus('${u.id}', '${status}')" class="btn-action ${isAtivo ? 'btn-block' : 'btn-unblock'}">
-                        <i class="bi ${isAtivo ? 'bi-pause-circle-fill' : 'bi-play-circle-fill'}"></i>
+                        <i class="bi ${isAtivo ? 'bi-pause-circle' : 'bi-check-circle'}"></i>
                         ${isAtivo ? 'Bloquear' : 'Liberar'}
                     </button>
                     <button onclick="remover('${u.id}')" class="btn-action btn-delete">
-                        <i class="bi bi-trash3-fill"></i>
-                        Excluir
+                        <i class="bi bi-trash"></i> Excluir
                     </button>
                 </div>
             </div>`;
@@ -164,7 +221,7 @@
     };
 
     window.remover = async (id) => {
-        if(confirm("Confirmar exclusão definitiva?")) await deleteDoc(doc(db, "usuarios", id));
+        if(confirm("Excluir definitivamente?")) await deleteDoc(doc(db, "usuarios", id));
     };
 </script>
 </body>
