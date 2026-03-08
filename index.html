@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DAPfy | Admin Master</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root { --admin-bg: #0f172a; --accent: #6366f1; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding-top: 80px; }
+
+        .admin-header { position: fixed; top: 0; width: 100%; background: var(--admin-bg); padding: 12px 0; z-index: 2000; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        
+        .search-container { background: white; border-radius: 15px; padding: 12px 15px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .search-container input { border: none; outline: none; width: 100%; font-size: 0.9rem; }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .kpi-card { background: white; border-radius: 20px; padding: 16px; border: 1px solid #e2e8f0; }
+        .kpi-card small { font-size: 0.65rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
+        .kpi-card h3 { font-size: 1.1rem; font-weight: 700; margin-top: 5px; }
+
+        /* Estilo do Card Vertical */
+        .lojista-card { background: white; border-radius: 22px; padding: 20px; margin-bottom: 15px; border: 1px solid #eceef2; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .card-top { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .avatar-box { width: 50px; height: 50px; background: #eef2ff; color: var(--accent); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; }
+        
+        .info-box h6 { margin: 0; font-size: 1rem; font-weight: 700; color: var(--admin-bg); }
+        .info-box p { margin: 0; font-size: 0.8rem; color: #64748b; }
+        
+        .badge-status { font-size: 0.6rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; text-transform: uppercase; margin-top: 5px; display: inline-block; }
+        .status-active { background: #dcfce7; color: #15803d; }
+        .status-blocked { background: #fee2e2; color: #b91c1c; }
+
+        /* Container de botões abaixo do e-mail */
+        .action-row { display: flex; gap: 10px; border-top: 1px solid #f1f5f9; padding-top: 15px; }
+        .btn-action { flex: 1; border-radius: 12px; padding: 10px; font-size: 0.8rem; font-weight: 700; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+        .btn-action:active { transform: scale(0.96); }
+        
+        .btn-block { background: #fffbeb; color: var(--warning); border: 1px solid #fef3c7; }
+        .btn-unblock { background: #f0fdf4; color: var(--success); border: 1px solid #dcfce7; }
+        .btn-delete { background: #fef2f2; color: var(--danger); border: 1px solid #fee2e2; }
+
+        .filter-tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .filter-btn { border: 1px solid #e2e8f0; background: white; padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; color: #64748b; }
+        .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<header class="admin-header">
+    <div class="container d-flex justify-content-between align-items-center px-4">
+        <div class="text-white fw-bold d-flex align-items-center gap-2">
+            <i class="bi bi-person-badge-fill text-info"></i>
+            <span>DAPfy Master</span>
+        </div>
+        <button onclick="location.reload()" class="btn btn-sm btn-dark rounded-circle"><i class="bi bi-arrow-clockwise"></i></button>
+    </div>
+</header>
+
+<div class="container px-4">
+    <div class="metrics-grid mt-3">
+        <div class="kpi-card shadow-sm"><small>Lojistas</small><h3 id="totalLojas">0</h3></div>
+        <div class="kpi-card shadow-sm"><small>Volume</small><h3 id="totalVolume">R$ 0</h3></div>
+    </div>
+
+    <div class="search-container shadow-sm">
+        <i class="bi bi-search text-muted"></i>
+        <input type="text" id="inputBusca" placeholder="Pesquisar loja..." oninput="renderizar()">
+    </div>
+
+    <div class="filter-tabs">
+        <button class="filter-btn active" id="btnAll" onclick="setFiltro('todos')">Todos</button>
+        <button class="filter-btn" id="btnAtivo" onclick="setFiltro('ativo')">Ativos</button>
+        <button class="filter-btn" id="btnPendente" onclick="setFiltro('pendente')">Bloqueados</button>
+    </div>
+
+    <div id="listaLojistas" class="pb-5">
+        <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyA7SbPIwTdTdxpuDHeV0onKi88XFLmdYyw",
+        authDomain: "dapfycashback-92583.firebaseapp.com",
+        projectId: "dapfycashback-92583",
+        storageBucket: "dapfycashback-92583.firebasestorage.app",
+        messagingSenderId: "1041877443665",
+        appId: "1:1041877443665:web:0792707a9f1abe28c80470"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let lojistasCache = [];
+    let filtroStatus = 'todos';
+
+    onSnapshot(collection(db, "transacoes"), (snap) => {
+        const total = snap.docs.reduce((a, b) => a + (b.data().valor || 0), 0);
+        document.getElementById('totalVolume').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+    });
+
+    onSnapshot(collection(db, "usuarios"), (snapshot) => {
+        lojistasCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderizar();
+    });
+
+    window.setFiltro = (s) => {
+        filtroStatus = s;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn' + s.charAt(0).toUpperCase() + s.slice(1)).classList.add('active');
+        renderizar();
+    };
+
+    window.renderizar = () => {
+        const lista = document.getElementById('listaLojistas');
+        const termo = document.getElementById('inputBusca').value.toLowerCase();
+        
+        let filtrados = lojistasCache.filter(u => {
+            const matchBusca = u.nome.toLowerCase().includes(termo) || u.email.toLowerCase().includes(termo);
+            const matchStatus = filtroStatus === 'todos' || (u.status || 'ativo') === filtroStatus;
+            return matchBusca && matchStatus;
+        });
+
+        document.getElementById('totalLojas').innerText = filtrados.length;
+
+        lista.innerHTML = filtrados.map(u => {
+            const status = u.status || 'ativo';
+            const isAtivo = status === 'ativo';
+            return `
+            <div class="lojista-card">
+                <div class="card-top">
+                    <div class="avatar-box">${u.nome.charAt(0).toUpperCase()}</div>
+                    <div class="info-box">
+                        <h6>${u.nome}</h6>
+                        <p>${u.email}</p>
+                        <span class="badge-status ${isAtivo ? 'status-active' : 'status-blocked'}">${status}</span>
+                    </div>
+                </div>
+                
+                <div class="action-row">
+                    <button onclick="toggleStatus('${u.id}', '${status}')" class="btn-action ${isAtivo ? 'btn-block' : 'btn-unblock'}">
+                        <i class="bi ${isAtivo ? 'bi-pause-circle-fill' : 'bi-play-circle-fill'}"></i>
+                        ${isAtivo ? 'Bloquear' : 'Liberar'}
+                    </button>
+                    <button onclick="remover('${u.id}')" class="btn-action btn-delete">
+                        <i class="bi bi-trash3-fill"></i>
+                        Excluir
+                    </button>
+                </div>
+            </div>`;
+        }).join('') || '<p class="text-center py-5 text-muted">Nenhum parceiro encontrado.</p>';
+    };
+
+    window.toggleStatus = async (id, atual) => {
+        await updateDoc(doc(db, "usuarios", id), { status: atual === 'ativo' ? 'pendente' : 'ativo' });
+    };
+
+    window.remover = async (id) => {
+        if(confirm("Confirmar exclusão definitiva?")) await deleteDoc(doc(db, "usuarios", id));
+    };
+</script>
+</body>
+</html>
