@@ -27,9 +27,12 @@
         .kpi-card h3 { font-size: 1.1rem; font-weight: 700; margin-top: 5px; }
         
         /* Estilo dos Cards */
-        .lojista-card { background: white; border-radius: 22px; padding: 20px; margin-bottom: 15px; border: 1px solid #eceef2; position: relative; }
+        .lojista-card { background: white; border-radius: 22px; padding: 20px; margin-bottom: 15px; border: 1px solid #eceef2; position: relative; transition: transform 0.3s ease; }
         .card-vip { background: #fffbeb !important; border: 2px solid var(--vip-gold) !important; }
+        .card-urgente { border: 2px solid var(--danger) !important; animation: borderPulse 2s infinite; }
         
+        @keyframes borderPulse { 0% { border-color: #ef4444; } 50% { border-color: #fee2e2; } 100% { border-color: #ef4444; } }
+
         .card-top { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
         .avatar-box { width: 50px; height: 50px; background: #eef2ff; color: var(--accent); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
         .avatar-vip { background: var(--vip-gold); color: white; }
@@ -47,7 +50,7 @@
         .action-row { display: flex; gap: 10px; border-top: 1px solid #f1f5f9; padding-top: 15px; }
         .btn-action { flex: 1; border-radius: 12px; padding: 10px; font-size: 0.75rem; font-weight: 700; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
         
-        .filter-tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; }
+        .filter-tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .filter-btn { border: 1px solid #e2e8f0; background: white; padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
         .filter-btn.active { background: var(--accent); color: white; }
     </style>
@@ -86,7 +89,7 @@
 <div class="container px-4">
     <div class="metrics-grid mt-3">
         <div class="kpi-card shadow-sm"><small>Lojistas</small><h3 id="totalLojas">0</h3></div>
-        <div class="kpi-card shadow-sm"><small>Volume</small><h3 id="totalVolume">R$ 0</h3></div>
+        <div class="kpi-card shadow-sm"><small>Volume Total</small><h3 id="totalVolume">R$ 0</h3></div>
     </div>
 
     <div class="search-container shadow-sm">
@@ -132,20 +135,17 @@
         try {
             const res = await signInWithEmailAndPassword(auth, email, senha);
             const userDoc = await getDoc(doc(db, "usuarios", res.user.uid));
-            if (userDoc.exists() && userDoc.data().status === 'ativo') {
+            if (userDoc.exists()) {
                 document.getElementById('loginOverlay').style.display = 'none';
                 iniciarApp();
-            } else { await signOut(auth); alert("Acesso negado."); }
-        } catch (e) { alert("Erro: " + e.message); }
+            } else { await signOut(auth); alert("Usuário não encontrado no banco."); }
+        } catch (e) { alert("Credenciais Master Inválidas."); }
     };
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            const userDoc = await getDoc(doc(db, "usuarios", user.uid));
-            if (userDoc.exists() && userDoc.data().status === 'ativo') {
-                document.getElementById('loginOverlay').style.display = 'none';
-                iniciarApp();
-            }
+            document.getElementById('loginOverlay').style.display = 'none';
+            iniciarApp();
         }
     });
 
@@ -154,13 +154,16 @@
     function iniciarApp() {
         onSnapshot(collection(db, "transacoes"), (snap) => {
             const total = snap.docs.reduce((a, b) => a + (b.data().valor || 0), 0);
-            document.getElementById('totalVolume').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+            document.getElementById('totalVolume').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         });
 
         onSnapshot(query(collection(db, "usuarios"), orderBy("nome", "asc")), (snapshot) => {
             lojistasCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderizar();
         });
+
+        // Loop para atualizar o cronômetro visualmente se a página ficar aberta
+        setInterval(renderizar, 60000); 
     }
 
     window.setFiltro = (s) => {
@@ -176,29 +179,63 @@
         const termo = document.getElementById('inputBusca').value.toLowerCase();
         const hoje = new Date();
         
-        // Separa o Diego dos demais
-        const diego = lojistasCache.find(u => (u.nome || "").toLowerCase().includes("diego alves pinheiro"));
-        const outros = lojistasCache.filter(u => u !== diego && (
-            ((u.nome || "").toLowerCase().includes(termo) || (u.email || "").toLowerCase().includes(termo)) &&
-            (filtroStatus === 'todos' || (u.status || 'pendente') === filtroStatus)
-        ));
+        // Mapear lojistas calculando o tempo restante
+        let lojistasProcessados = lojistasCache.map(u => {
+            const dataInic = u.dataCadastro ? new Date(u.dataCadastro) : hoje;
+            const diffMs = hoje - dataInic;
+            const diffDias = diffMs / (1000 * 60 * 60 * 24);
+            const restam = Math.max(0, 30 - diffDias);
+            return { ...u, tempoRestante: restam };
+        });
 
-        const finalArr = diego ? [diego, ...outros] : outros;
-        document.getElementById('totalLojas').innerText = finalArr.length;
+        // Filtragem
+        let filtrados = lojistasProcessados.filter(u => {
+            const matchesBusca = (u.nome || "").toLowerCase().includes(termo) || (u.email || "").toLowerCase().includes(termo);
+            const matchesStatus = filtroStatus === 'todos' || (u.status || 'pendente') === filtroStatus;
+            return matchesBusca && matchesStatus;
+        });
 
-        lista.innerHTML = finalArr.map(u => {
+        // ORDENAÇÃO: 
+        // 1. Diego (Master) sempre no topo.
+        // 2. Lojistas com menos de 3 dias sobem para prioridade.
+        // 3. Ordem crescente de dias restantes.
+        filtrados.sort((a, b) => {
+            const isDiegoA = (a.nome || "").toLowerCase().includes("diego alves pinheiro");
+            const isDiegoB = (b.nome || "").toLowerCase().includes("diego alves pinheiro");
+            if (isDiegoA) return -1; if (isDiegoB) return 1;
+
+            const urgenteA = a.tempoRestante <= 3 ? 1 : 0;
+            const urgenteB = b.tempoRestante <= 3 ? 1 : 0;
+            
+            if (urgenteA !== urgenteB) return urgenteB - urgenteA; // Prioriza urgentes
+            return a.tempoRestante - b.tempoRestante; // Menor tempo primeiro
+        });
+
+        document.getElementById('totalLojas').innerText = filtrados.length;
+
+        lista.innerHTML = filtrados.map(u => {
             const isDiego = (u.nome || "").toLowerCase().includes("diego alves pinheiro");
             const status = isDiego ? 'ativo' : (u.status || 'pendente');
             
-            // Lógica de Dias
-            const dataInic = u.dataCadastro ? new Date(u.dataCadastro) : hoje;
-            const diff = Math.floor((hoje - dataInic) / (1000 * 60 * 60 * 24));
-            const diasR = isDiego ? 30 : Math.max(0, 30 - diff);
-            const porc = isDiego ? 100 : (diasR / 30) * 100;
-            const corBarra = isDiego ? 'var(--vip-gold)' : (diasR < 10 ? 'var(--danger)' : 'var(--success)');
+            const diasFaltando = Math.floor(u.tempoRestante);
+            const porc = isDiego ? 100 : (u.tempoRestante / 30) * 100;
+            
+            let corBarra = 'var(--success)';
+            let cardClasse = '';
+            
+            if (!isDiego) {
+                if (u.tempoRestante <= 3) {
+                    corBarra = 'var(--danger)';
+                    cardClasse = 'card-urgente';
+                } else if (u.tempoRestante <= 10) {
+                    corBarra = 'var(--warning)';
+                }
+            } else {
+                corBarra = 'var(--vip-gold)';
+            }
 
             return `
-            <div class="lojista-card shadow-sm ${isDiego ? 'card-vip' : ''}">
+            <div class="lojista-card shadow-sm ${isDiego ? 'card-vip' : cardClasse}">
                 <div class="card-top">
                     <div class="avatar-box ${isDiego ? 'avatar-vip' : ''}">
                         <i class="bi ${isDiego ? 'bi-patch-check-fill' : 'bi-shop'}"></i>
@@ -217,7 +254,7 @@
                 <div class="expiry-container">
                     <div class="text-expiry">
                         <span>${isDiego ? 'Acesso Vitalício' : 'Ciclo de Licença'}</span>
-                        <span style="color: ${isDiego ? '#b45309' : corBarra}">${isDiego ? '∞ ILIMITADO' : diasR + ' dias'}</span>
+                        <span style="color: ${corBarra}">${isDiego ? '∞ ILIMITADO' : diasFaltando + ' dias restantes'}</span>
                     </div>
                     <div class="progress-thin">
                         <div class="progress-fill" style="width: ${porc}%; background: ${corBarra}"></div>
@@ -237,7 +274,7 @@
                     </button>
                 </div>` : ''}
             </div>`;
-        }).join('') || '<p class="text-center py-5 text-muted">Nenhum parceiro encontrado.</p>';
+        }).join('') || '<p class="text-center py-5 text-muted">Nenhuma loja encontrada.</p>';
     };
 
     window.toggleStatus = async (id, atual) => {
@@ -245,13 +282,18 @@
     };
 
     window.renovar = async (id) => {
-        if(confirm("Deseja renovar o ciclo de 30 dias deste lojista?")) {
-            await updateDoc(doc(db, "usuarios", id), { dataCadastro: new Date().toISOString(), status: 'ativo' });
+        if(confirm("Deseja resetar o ciclo para 30 dias?")) {
+            await updateDoc(doc(db, "usuarios", id), { 
+                dataCadastro: new Date().toISOString(), 
+                status: 'ativo' 
+            });
         }
     };
 
     window.remover = async (id) => {
-        if(confirm("Excluir definitivamente?")) await deleteDoc(doc(db, "usuarios", id));
+        if(confirm("Excluir conta permanentemente?")) {
+            await deleteDoc(doc(db, "usuarios", id));
+        }
     };
 </script>
 </body>
