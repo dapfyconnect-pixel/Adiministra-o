@@ -15,83 +15,151 @@
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
             --danger: #ef4444;
+            --warning: #f1c40f;
             --border: rgba(255, 255, 255, 0.08);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 20px; display: flex; justify-content: center; }
 
-        .admin-container { width: 100%; max-width: 600px; }
+        .admin-container { width: 100%; max-width: 600px; padding-bottom: 50px; }
 
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-        header h1 { font-size: 1.2rem; }
-        header span { color: var(--primary); }
+        /* TELA DE AUTENTICAÇÃO */
+        #screen-auth { width: 100%; max-width: 400px; padding: 30px; background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border); align-self: center; text-align: center; }
+        .auth-logo { font-size: 2.5rem; color: var(--primary); margin-bottom: 10px; }
+        .auth-tabs { display: flex; gap: 10px; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 12px; }
+        .auth-tab-btn { flex: 1; padding: 10px; border: none; background: none; color: var(--text-dim); cursor: pointer; font-weight: 700; border-radius: 8px; font-size: 0.8rem; }
+        .auth-tab-btn.active { background: var(--primary); color: #000; }
 
-        /* Dashboard Stats */
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
-        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid var(--border); text-align: center; }
-        .stat-card small { color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
-        .stat-card div { font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 5px; }
-
-        /* Lojistas List */
-        .lojista-card { 
-            background: var(--card-bg); 
-            border-radius: 22px; 
-            padding: 20px; 
-            border: 1px solid var(--border); 
-            margin-bottom: 15px; 
-            transition: 0.3s;
-        }
-
-        .lojista-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
-        .lojista-info { display: flex; align-items: center; gap: 15px; }
-        .lojista-icon { width: 45px; height: 45px; background: rgba(0, 255, 136, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.2rem; border: 1px solid rgba(0, 255, 136, 0.2); }
+        .input-group { text-align: left; margin-bottom: 15px; position: relative; }
+        .input-group label { font-size: 0.65rem; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        input { width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border); border-radius: 12px; color: white; outline: none; font-size: 0.9rem; }
         
-        .status-badge { font-size: 0.6rem; padding: 5px 10px; border-radius: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .status-ativo { background: rgba(0, 255, 136, 0.1); color: var(--primary); border: 1px solid var(--primary); }
-        .status-bloqueado { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+        .pass-wrapper { position: relative; }
+        .toggle-pass { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-dim); cursor: pointer; z-index: 10; }
+        .forgot-pass { display: block; text-align: right; font-size: 0.75rem; color: var(--text-dim); margin-top: 8px; cursor: pointer; text-decoration: underline; }
 
-        .lojista-data { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-bottom: 15px; }
-        .data-item { display: flex; flex-direction: column; }
-        .data-item small { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; }
-        .data-item b { font-size: 0.9rem; }
+        /* PAINEL PRINCIPAL */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        header h1 { font-size: 1.2rem; }
+        header h1 span { color: var(--primary); }
+        .btn-logout { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); padding: 6px 15px; border-radius: 10px; font-size: 0.7rem; cursor: pointer; font-weight: 700; }
 
-        /* Botões */
-        .btn-action { width: 100%; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 0.8rem; }
-        .btn-block { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger); }
-        .btn-unblock { background: rgba(0, 255, 136, 0.15); color: var(--primary); border: 1px solid var(--primary); }
-        .btn-block:hover { background: var(--danger); color: white; }
-        .btn-unblock:hover { background: var(--primary); color: black; }
+        /* DASHBOARD STATS */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
+        .stat-card { background: var(--card-bg); padding: 15px 10px; border-radius: 18px; border: 1px solid var(--border); text-align: center; }
+        .stat-card small { color: var(--text-dim); font-size: 0.6rem; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .stat-card div { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
 
-        .loading { text-align: center; padding: 40px; color: var(--text-dim); }
+        /* FILTROS E BUSCA */
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; }
+        .filter-btn { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-dim); cursor: pointer; font-size: 0.75rem; font-weight: 700; transition: 0.2s; }
+        .filter-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+        
+        .search-box { width: 100%; position: relative; margin-bottom: 25px; }
+        .search-box i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
+        .search-box input { padding-left: 45px; width: 100%; }
+
+        /* CARDS DO LOJISTA */
+        .lojista-card { background: var(--card-bg); border-radius: 22px; padding: 20px; border: 1px solid var(--border); margin-bottom: 15px; position: relative; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .days-left-badge { position: absolute; top: 18px; right: 18px; font-size: 0.7rem; font-weight: 800; padding: 5px 12px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
+        .urgent { background: var(--danger) !important; color: white; border: none; animation: pulse 1.5s infinite; }
+        .warning { background: var(--warning) !important; color: black; border: none; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+        .lojista-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; padding-right: 80px; }
+        .lojista-icon { width: 42px; height: 42px; background: rgba(0, 255, 136, 0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.1rem; border: 1px solid var(--border); }
+        
+        .status-badge { font-size: 0.6rem; padding: 3px 8px; border-radius: 6px; font-weight: 800; text-transform: uppercase; margin-top: 4px; display: inline-block; }
+        .status-ativo { background: rgba(0, 255, 136, 0.1); color: var(--primary); }
+        .status-bloqueado { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        .lojista-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 15px; margin-bottom: 12px; }
+        .data-item { display: flex; flex-direction: column; overflow: hidden; }
+        .data-item small { font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 2px; }
+        .data-item b { font-size: 0.8rem; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+
+        .btn-main { width: 100%; padding: 14px; background: var(--primary); border: none; border-radius: 15px; font-weight: 800; color: #000; cursor: pointer; margin-top: 15px; }
+        .btn-action { width: 100%; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-block { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+        .btn-unblock { background: rgba(0, 255, 136, 0.1); color: var(--primary); border: 1px solid var(--primary); }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div class="admin-container">
+<section id="screen-auth">
+    <div class="auth-logo"><i class="fa-solid fa-crown"></i></div>
+    <h2 id="auth-title" style="margin-bottom: 20px;">DAPfy Admin</h2>
+    
+    <div class="auth-tabs">
+        <button id="tab-login" class="auth-tab-btn active" onclick="switchTab('login')">Entrar</button>
+        <button id="tab-register" class="auth-tab-btn" onclick="switchTab('register')">Criar Conta</button>
+    </div>
+
+    <div id="group-name" class="input-group hidden">
+        <label>Nome Completo</label>
+        <input type="text" id="auth-name" placeholder="Seu nome">
+    </div>
+
+    <div class="input-group">
+        <label>E-mail</label>
+        <input type="email" id="auth-email" placeholder="admin@dapfy.com">
+    </div>
+
+    <div class="input-group">
+        <label>Senha</label>
+        <div class="pass-wrapper">
+            <input type="password" id="auth-pass" placeholder="••••••••">
+            <i class="fa-solid fa-eye toggle-pass" onclick="togglePassword()"></i>
+        </div>
+        <span class="forgot-pass" id="btn-forgot" onclick="handleResetPassword()">Esqueci minha senha</span>
+    </div>
+
+    <button id="btn-auth-action" class="btn-main" onclick="processAuth()">Acessar Painel</button>
+</section>
+
+<div id="screen-panel" class="admin-container hidden">
     <header>
-        <h1><i class="fa-solid fa-crown"></i> DAPfy <span>Admin</span></h1>
-        <div id="count-active" style="font-size: 0.8rem; color: var(--text-dim);">Carregando...</div>
+        <h1>DAPfy <span>Admin</span></h1>
+        <button class="btn-logout" onclick="handleLogout()">Sair</button>
     </header>
 
     <div class="stats-grid">
         <div class="stat-card">
-            <small>Total Lojistas</small>
+            <small>Total</small>
             <div id="stat-lojistas">0</div>
         </div>
         <div class="stat-card">
-            <small>Transações Rede</small>
+            <small>Vendas</small>
             <div id="stat-transacoes">0</div>
+        </div>
+        <div class="stat-card" style="border-color: var(--danger);">
+            <small>Alertas</small>
+            <div id="stat-alertas" style="color: var(--danger);">0</div>
         </div>
     </div>
 
-    <div id="lista-lojistas">
-        <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Sincronizando dados...</div>
+    <div class="filter-bar">
+        <button class="filter-btn active" id="filter-todos" onclick="setFilter('todos')">Todos</button>
+        <button class="filter-btn" id="filter-ativo" onclick="setFilter('ativo')">Ativos</button>
+        <button class="filter-btn" id="filter-bloqueado" onclick="setFilter('bloqueado')">Bloqueados</button>
     </div>
+
+    <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="admin-search" placeholder="Buscar loja ou e-mail..." oninput="filtrarGeral()">
+    </div>
+
+    <div id="lista-lojistas"></div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -104,82 +172,162 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Monitoramento Global em Tempo Real
-    onSnapshot(collection(db, "lojistas"), (snapshot) => {
-        let totalTrans = 0;
-        let ativos = 0;
-        let html = "";
+    let authMode = 'login';
+    let allLojistas = [];
+    let currentStatusFilter = 'todos';
 
-        snapshot.forEach(docSnap => {
-            const data = docSnap.data();
-            const id = docSnap.id;
-            const status = data.status || 'ativo';
-            const trans = data.registros ? data.registros.length : 0;
-            const ofertas = data.ofertas ? data.ofertas.length : 0;
+    // AUTH UI LOGIC
+    window.switchTab = (mode) => {
+        authMode = mode;
+        document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+        document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+        document.getElementById('group-name').classList.toggle('hidden', mode === 'login');
+        document.getElementById('btn-forgot').classList.toggle('hidden', mode === 'register');
+        document.getElementById('btn-auth-action').innerText = mode === 'login' ? 'Acessar Painel' : 'Criar Conta Admin';
+    };
 
-            totalTrans += trans;
-            if(status === 'ativo') ativos++;
+    window.togglePassword = () => {
+        const input = document.getElementById('auth-pass');
+        const icon = event.target;
+        if(input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    };
 
-            html += `
-                <div class="lojista-card">
-                    <div class="lojista-header">
-                        <div class="lojista-info">
-                            <div class="lojista-icon"><i class="fa-solid ${data.icone || 'fa-store'}"></i></div>
-                            <div>
-                                <h3 style="font-size:1rem">${data.nomeLoja}</h3>
-                                <small style="color:var(--text-dim)">ID: ${id.substring(0,8)}</small>
-                            </div>
-                        </div>
-                        <span class="status-badge status-${status}">${status}</span>
-                    </div>
+    // AUTH ACTIONS
+    window.processAuth = async () => {
+        const email = document.getElementById('auth-email').value;
+        const pass = document.getElementById('auth-pass').value;
+        const name = document.getElementById('auth-name').value;
 
-                    <div class="lojista-data">
-                        <div class="data-item">
-                            <small>Transações</small>
-                            <b>${trans}</b>
-                        </div>
-                        <div class="data-item">
-                            <small>Promoções</small>
-                            <b>${ofertas}</b>
-                        </div>
-                    </div>
+        if(!email || !pass) return alert("Campos obrigatórios vazios.");
 
-                    <button class="btn-action ${status === 'ativo' ? 'btn-block' : 'btn-unblock'}" 
-                            onclick="alterarStatus('${id}', '${status}')">
-                        ${status === 'ativo' ? '<i class="fa-solid fa-lock"></i> Bloquear Acesso' : '<i class="fa-solid fa-lock-open"></i> Desbloquear'}
-                    </button>
-                </div>
-            `;
-        });
+        try {
+            if(authMode === 'login') {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } else {
+                if(!name) return alert("Informe seu nome.");
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(userCredential.user, { displayName: name });
+            }
+        } catch (err) { alert("Erro: " + err.message); }
+    };
 
-        document.getElementById('lista-lojistas').innerHTML = html || '<p style="text-align:center">Nenhum lojista cadastrado.</p>';
-        document.getElementById('stat-lojistas').innerText = snapshot.size;
-        document.getElementById('stat-transacoes').innerText = totalTrans;
-        document.getElementById('count-active').innerText = ativos + " Lojistas Ativos";
+    window.handleResetPassword = async () => {
+        const email = document.getElementById('auth-email').value;
+        if(!email) return alert("Digite seu e-mail.");
+        try {
+            await sendPasswordResetEmail(auth, email);
+            alert("Link de recuperação enviado ao e-mail!");
+        } catch (err) { alert(err.message); }
+    };
+
+    window.handleLogout = () => confirm("Sair do sistema?") && signOut(auth);
+
+    // STATE MONITOR
+    onAuthStateChanged(auth, (user) => {
+        if(user) {
+            document.getElementById('screen-auth').classList.add('hidden');
+            document.getElementById('screen-panel').classList.remove('hidden');
+            iniciarMonitoramento();
+        } else {
+            document.getElementById('screen-auth').classList.remove('hidden');
+            document.getElementById('screen-panel').classList.add('hidden');
+        }
     });
 
-    // Função para Bloquear/Desbloquear
+    // PANEL CORE LOGIC
+    function iniciarMonitoramento() {
+        onSnapshot(collection(db, "lojistas"), (snapshot) => {
+            let totalTrans = 0; let emAlerta = 0;
+            allLojistas = [];
+            
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                const hoje = new Date();
+                const venc = new Date(data.validadePlano || hoje);
+                const diffDays = Math.ceil((venc - hoje) / (1000 * 60 * 60 * 24));
+
+                if(diffDays <= 3 && data.status !== 'bloqueado') emAlerta++;
+                
+                allLojistas.push({ id: docSnap.id, ...data, diasRestantes: diffDays });
+                totalTrans += (data.registros ? data.registros.length : 0);
+            });
+
+            allLojistas.sort((a, b) => a.diasRestantes - b.diasRestantes);
+            filtrarGeral();
+
+            document.getElementById('stat-lojistas').innerText = snapshot.size;
+            document.getElementById('stat-transacoes').innerText = totalTrans;
+            document.getElementById('stat-alertas').innerText = emAlerta;
+        });
+    }
+
+    window.setFilter = (status) => {
+        currentStatusFilter = status;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('filter-' + status).classList.add('active');
+        filtrarGeral();
+    };
+
+    window.filtrarGeral = () => {
+        const termo = document.getElementById('admin-search').value.toLowerCase();
+        const filtrados = allLojistas.filter(l => {
+            const matchesStatus = currentStatusFilter === 'todos' || l.status === currentStatusFilter;
+            const matchesSearch = l.nomeLoja.toLowerCase().includes(termo) || (l.email && l.email.toLowerCase().includes(termo));
+            return matchesStatus && matchesSearch;
+        });
+        renderizarLista(filtrados);
+    };
+
+    window.renderizarLista = (lista) => {
+        let html = "";
+        lista.forEach(lojista => {
+            const status = lojista.status || 'ativo';
+            let badgeClass = lojista.diasRestantes <= 3 ? "urgent" : (lojista.diasRestantes <= 7 ? "warning" : "");
+            
+            html += `
+                <div class="lojista-card">
+                    <div class="days-left-badge ${badgeClass}">${lojista.diasRestantes}d restantes</div>
+                    <div class="lojista-header">
+                        <div class="lojista-icon"><i class="fa-solid ${lojista.icone || 'fa-store'}"></i></div>
+                        <div>
+                            <h3 style="font-size:0.95rem">${lojista.nomeLoja}</h3>
+                            <span class="status-badge status-${status}">${status}</span>
+                        </div>
+                    </div>
+                    <div class="lojista-data-grid">
+                        <div class="data-item"><small>Vencimento</small><b>${lojista.validadePlano ? new Date(lojista.validadePlano).toLocaleDateString('pt-BR') : '---'}</b></div>
+                        <div class="data-item"><small>E-mail</small><b title="${lojista.email}">${lojista.email || '---'}</b></div>
+                    </div>
+                    <button class="btn-action ${status === 'ativo' ? 'btn-block' : 'btn-unblock'}" 
+                            onclick="alterarStatus('${lojista.id}', '${status}')">
+                        ${status === 'ativo' ? '<i class="fa-solid fa-lock"></i> Bloquear' : '<i class="fa-solid fa-unlock"></i> Reativar + 30 dias'}
+                    </button>
+                </div>`;
+        });
+        document.getElementById('lista-lojistas').innerHTML = html || '<p style="text-align:center; padding:20px;">Nenhum resultado.</p>';
+    };
+
     window.alterarStatus = async (uid, statusAtual) => {
         const novoStatus = statusAtual === 'ativo' ? 'bloqueado' : 'ativo';
-        const msg = novoStatus === 'bloqueado' ? 
-            "Deseja realmente BLOQUEAR esta loja? O lojista será desconectado imediatamente." : 
-            "Deseja REATIVAR o acesso desta loja?";
-
-        if(confirm(msg)) {
-            try {
-                const lojistaRef = doc(db, "lojistas", uid);
-                await updateDoc(lojistaRef, {
-                    status: novoStatus
-                });
-            } catch (error) {
-                console.error("Erro ao atualizar status:", error);
-                alert("Erro ao processar comando.");
-            }
+        let updateData = { status: novoStatus };
+        if(novoStatus === 'ativo') {
+            const novaData = new Date();
+            novaData.setDate(novaData.getDate() + 30);
+            updateData.validadePlano = novaData.toISOString().split('T')[0];
+        }
+        if(confirm(`Alterar status para ${novoStatus.toUpperCase()}?`)) {
+            await updateDoc(doc(db, "lojistas", uid), updateData);
         }
     };
 </script>
-
 </body>
 </html>
