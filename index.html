@@ -3,298 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DAPfy | Admin Master</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>DAPfy Admin | Controle do Ecossistema</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root { --admin-bg: #0f172a; --accent: #6366f1; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --vip-gold: #fbbf24; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding-top: 80px; }
+        :root {
+            --primary: #00ff88;
+            --bg-dark: #020617;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --danger: #ef4444;
+            --border: rgba(255, 255, 255, 0.08);
+        }
 
-        /* Tela de Login */
-        #loginOverlay { position: fixed; inset: 0; background: var(--admin-bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-card { background: white; width: 100%; max-width: 400px; border-radius: 28px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-        .btn-login { background: var(--accent); color: white; border-radius: 16px; padding: 16px; font-weight: 700; width: 100%; border: none; margin-top: 20px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 20px; display: flex; justify-content: center; }
 
-        /* Estilos do Painel */
-        .admin-header { position: fixed; top: 0; width: 100%; background: var(--admin-bg); padding: 12px 0; z-index: 2000; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-        .search-container { background: white; border-radius: 15px; padding: 12px 15px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-        .search-container input { border: none; outline: none; width: 100%; font-size: 0.9rem; }
-        .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-        .kpi-card { background: white; border-radius: 20px; padding: 16px; border: 1px solid #e2e8f0; }
-        .kpi-card h3 { font-size: 1.1rem; font-weight: 700; margin-top: 5px; }
+        .admin-container { width: 100%; max-width: 600px; }
+
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        header h1 { font-size: 1.2rem; }
+        header span { color: var(--primary); }
+
+        /* Dashboard Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid var(--border); text-align: center; }
+        .stat-card small { color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card div { font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 5px; }
+
+        /* Lojistas List */
+        .lojista-card { 
+            background: var(--card-bg); 
+            border-radius: 22px; 
+            padding: 20px; 
+            border: 1px solid var(--border); 
+            margin-bottom: 15px; 
+            transition: 0.3s;
+        }
+
+        .lojista-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .lojista-info { display: flex; align-items: center; gap: 15px; }
+        .lojista-icon { width: 45px; height: 45px; background: rgba(0, 255, 136, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.2rem; border: 1px solid rgba(0, 255, 136, 0.2); }
         
-        /* Estilo dos Cards */
-        .lojista-card { background: white; border-radius: 22px; padding: 20px; margin-bottom: 15px; border: 1px solid #eceef2; position: relative; transition: transform 0.3s ease; }
-        .card-vip { background: #fffbeb !important; border: 2px solid var(--vip-gold) !important; }
-        .card-urgente { border: 2px solid var(--danger) !important; animation: borderPulse 2s infinite; }
-        
-        @keyframes borderPulse { 0% { border-color: #ef4444; } 50% { border-color: #fee2e2; } 100% { border-color: #ef4444; } }
+        .status-badge { font-size: 0.6rem; padding: 5px 10px; border-radius: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .status-ativo { background: rgba(0, 255, 136, 0.1); color: var(--primary); border: 1px solid var(--primary); }
+        .status-bloqueado { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); }
 
-        .card-top { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .avatar-box { width: 50px; height: 50px; background: #eef2ff; color: var(--accent); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
-        .avatar-vip { background: var(--vip-gold); color: white; }
-        
-        .badge-status { font-size: 0.6rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; text-transform: uppercase; }
-        .status-active { background: #dcfce7; color: #15803d; }
-        .status-blocked { background: #fee2e2; color: #b91c1c; }
+        .lojista-data { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-bottom: 15px; }
+        .data-item { display: flex; flex-direction: column; }
+        .data-item small { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; }
+        .data-item b { font-size: 0.9rem; }
 
-        /* Contador de Dias */
-        .expiry-container { margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.02); border-radius: 12px; }
-        .progress-thin { height: 6px; background: #e2e8f0; border-radius: 10px; margin: 8px 0; overflow: hidden; }
-        .progress-fill { height: 100%; transition: width 0.8s ease; }
-        .text-expiry { font-size: 0.7rem; font-weight: 700; display: flex; justify-content: space-between; }
+        /* Botões */
+        .btn-action { width: 100%; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 0.8rem; }
+        .btn-block { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+        .btn-unblock { background: rgba(0, 255, 136, 0.15); color: var(--primary); border: 1px solid var(--primary); }
+        .btn-block:hover { background: var(--danger); color: white; }
+        .btn-unblock:hover { background: var(--primary); color: black; }
 
-        .action-row { display: flex; gap: 10px; border-top: 1px solid #f1f5f9; padding-top: 15px; }
-        .btn-action { flex: 1; border-radius: 12px; padding: 10px; font-size: 0.75rem; font-weight: 700; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        
-        .filter-tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .filter-btn { border: 1px solid #e2e8f0; background: white; padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
-        .filter-btn.active { background: var(--accent); color: white; }
+        .loading { text-align: center; padding: 40px; color: var(--text-dim); }
     </style>
 </head>
 <body>
 
-<div id="loginOverlay">
-    <div class="login-card">
-        <div class="text-center mb-4">
-            <img src="https://i.ibb.co/Z1z4tSvj/1772903229417.png" alt="DAPfy" style="max-width: 80px; margin-bottom: 15px;">
-            <h4 class="fw-bold">Acesso Master</h4>
-            <p class="text-muted small">Entre com suas credenciais administrativas.</p>
+<div class="admin-container">
+    <header>
+        <h1><i class="fa-solid fa-crown"></i> DAPfy <span>Admin</span></h1>
+        <div id="count-active" style="font-size: 0.8rem; color: var(--text-dim);">Carregando...</div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <small>Total Lojistas</small>
+            <div id="stat-lojistas">0</div>
         </div>
-        <div class="mb-3">
-            <label class="form-label small fw-bold">E-mail</label>
-            <input type="email" id="emailMaster" class="form-control" placeholder="admin@dapfy.com">
+        <div class="stat-card">
+            <small>Transações Rede</small>
+            <div id="stat-transacoes">0</div>
         </div>
-        <div class="mb-3">
-            <label class="form-label small fw-bold">Senha</label>
-            <input type="password" id="senhaMaster" class="form-control" placeholder="••••••••">
-        </div>
-        <button id="btnLogin" onclick="entrarMaster()" class="btn-login shadow">Entrar no Painel</button>
-    </div>
-</div>
-
-<header class="admin-header">
-    <div class="container d-flex justify-content-between align-items-center px-4">
-        <div class="text-white fw-bold d-flex align-items-center gap-2">
-            <i class="bi bi-person-badge-fill text-info"></i>
-            <span>DAPfy Master</span>
-        </div>
-        <button onclick="logout()" class="btn btn-sm btn-outline-light rounded-pill px-3">Sair</button>
-    </div>
-</header>
-
-<div class="container px-4">
-    <div class="metrics-grid mt-3">
-        <div class="kpi-card shadow-sm"><small>Lojistas</small><h3 id="totalLojas">0</h3></div>
-        <div class="kpi-card shadow-sm"><small>Volume Total</small><h3 id="totalVolume">R$ 0</h3></div>
     </div>
 
-    <div class="search-container shadow-sm">
-        <i class="bi bi-search text-muted"></i>
-        <input type="text" id="inputBusca" placeholder="Pesquisar loja..." oninput="renderizar()">
-    </div>
-
-    <div class="filter-tabs">
-        <button class="filter-btn active" id="btnTodos" onclick="setFiltro('todos')">Todos</button>
-        <button class="filter-btn" id="btnAtivo" onclick="setFiltro('ativo')">Ativos</button>
-        <button class="filter-btn" id="btnPendente" onclick="setFiltro('pendente')">Bloqueados</button>
-    </div>
-
-    <div id="listaLojistas" class="pb-5">
-        <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+    <div id="lista-lojistas">
+        <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Sincronizando dados...</div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, getDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
-        apiKey: "AIzaSyA7SbPIwTdTdxpuDHeV0onKi88XFLmdYyw",
-        authDomain: "dapfycashback-92583.firebaseapp.com",
-        projectId: "dapfycashback-92583",
-        storageBucket: "dapfycashback-92583.firebasestorage.app",
-        messagingSenderId: "1041877443665",
-        appId: "1:1041877443665:web:0792707a9f1abe28c80470"
+      apiKey: "AIzaSyA7SbPIwTdTdxpuDHeV0onKi88XFLmdYyw",
+      authDomain: "dapfycashback-92583.firebaseapp.com",
+      projectId: "dapfycashback-92583",
+      storageBucket: "dapfycashback-92583.firebasestorage.app",
+      messagingSenderId: "1041877443665",
+      appId: "1:1041877443665:web:0792707a9f1abe28c80470"
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let lojistasCache = [];
-    let filtroStatus = 'todos';
+    // Monitoramento Global em Tempo Real
+    onSnapshot(collection(db, "lojistas"), (snapshot) => {
+        let totalTrans = 0;
+        let ativos = 0;
+        let html = "";
 
-    window.entrarMaster = async () => {
-        const email = document.getElementById('emailMaster').value;
-        const senha = document.getElementById('senhaMaster').value;
-        try {
-            const res = await signInWithEmailAndPassword(auth, email, senha);
-            const userDoc = await getDoc(doc(db, "usuarios", res.user.uid));
-            if (userDoc.exists()) {
-                document.getElementById('loginOverlay').style.display = 'none';
-                iniciarApp();
-            } else { await signOut(auth); alert("Usuário não encontrado no banco."); }
-        } catch (e) { alert("Credenciais Master Inválidas."); }
-    };
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            const id = docSnap.id;
+            const status = data.status || 'ativo';
+            const trans = data.registros ? data.registros.length : 0;
+            const ofertas = data.ofertas ? data.ofertas.length : 0;
 
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            document.getElementById('loginOverlay').style.display = 'none';
-            iniciarApp();
-        }
+            totalTrans += trans;
+            if(status === 'ativo') ativos++;
+
+            html += `
+                <div class="lojista-card">
+                    <div class="lojista-header">
+                        <div class="lojista-info">
+                            <div class="lojista-icon"><i class="fa-solid ${data.icone || 'fa-store'}"></i></div>
+                            <div>
+                                <h3 style="font-size:1rem">${data.nomeLoja}</h3>
+                                <small style="color:var(--text-dim)">ID: ${id.substring(0,8)}</small>
+                            </div>
+                        </div>
+                        <span class="status-badge status-${status}">${status}</span>
+                    </div>
+
+                    <div class="lojista-data">
+                        <div class="data-item">
+                            <small>Transações</small>
+                            <b>${trans}</b>
+                        </div>
+                        <div class="data-item">
+                            <small>Promoções</small>
+                            <b>${ofertas}</b>
+                        </div>
+                    </div>
+
+                    <button class="btn-action ${status === 'ativo' ? 'btn-block' : 'btn-unblock'}" 
+                            onclick="alterarStatus('${id}', '${status}')">
+                        ${status === 'ativo' ? '<i class="fa-solid fa-lock"></i> Bloquear Acesso' : '<i class="fa-solid fa-lock-open"></i> Desbloquear'}
+                    </button>
+                </div>
+            `;
+        });
+
+        document.getElementById('lista-lojistas').innerHTML = html || '<p style="text-align:center">Nenhum lojista cadastrado.</p>';
+        document.getElementById('stat-lojistas').innerText = snapshot.size;
+        document.getElementById('stat-transacoes').innerText = totalTrans;
+        document.getElementById('count-active').innerText = ativos + " Lojistas Ativos";
     });
 
-    window.logout = () => signOut(auth).then(() => location.reload());
+    // Função para Bloquear/Desbloquear
+    window.alterarStatus = async (uid, statusAtual) => {
+        const novoStatus = statusAtual === 'ativo' ? 'bloqueado' : 'ativo';
+        const msg = novoStatus === 'bloqueado' ? 
+            "Deseja realmente BLOQUEAR esta loja? O lojista será desconectado imediatamente." : 
+            "Deseja REATIVAR o acesso desta loja?";
 
-    function iniciarApp() {
-        onSnapshot(collection(db, "transacoes"), (snap) => {
-            const total = snap.docs.reduce((a, b) => a + (b.data().valor || 0), 0);
-            document.getElementById('totalVolume').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        });
-
-        onSnapshot(query(collection(db, "usuarios"), orderBy("nome", "asc")), (snapshot) => {
-            lojistasCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderizar();
-        });
-
-        // Loop para atualizar o cronômetro visualmente se a página ficar aberta
-        setInterval(renderizar, 60000); 
-    }
-
-    window.setFiltro = (s) => {
-        filtroStatus = s;
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        const btnId = s === 'todos' ? 'btnTodos' : 'btn' + s.charAt(0).toUpperCase() + s.slice(1);
-        if(document.getElementById(btnId)) document.getElementById(btnId).classList.add('active');
-        renderizar();
-    };
-
-    window.renderizar = () => {
-        const lista = document.getElementById('listaLojistas');
-        const termo = document.getElementById('inputBusca').value.toLowerCase();
-        const hoje = new Date();
-        
-        // Mapear lojistas calculando o tempo restante
-        let lojistasProcessados = lojistasCache.map(u => {
-            const dataInic = u.dataCadastro ? new Date(u.dataCadastro) : hoje;
-            const diffMs = hoje - dataInic;
-            const diffDias = diffMs / (1000 * 60 * 60 * 24);
-            const restam = Math.max(0, 30 - diffDias);
-            return { ...u, tempoRestante: restam };
-        });
-
-        // Filtragem
-        let filtrados = lojistasProcessados.filter(u => {
-            const matchesBusca = (u.nome || "").toLowerCase().includes(termo) || (u.email || "").toLowerCase().includes(termo);
-            const matchesStatus = filtroStatus === 'todos' || (u.status || 'pendente') === filtroStatus;
-            return matchesBusca && matchesStatus;
-        });
-
-        // ORDENAÇÃO: 
-        // 1. Diego (Master) sempre no topo.
-        // 2. Lojistas com menos de 3 dias sobem para prioridade.
-        // 3. Ordem crescente de dias restantes.
-        filtrados.sort((a, b) => {
-            const isDiegoA = (a.nome || "").toLowerCase().includes("diego alves pinheiro");
-            const isDiegoB = (b.nome || "").toLowerCase().includes("diego alves pinheiro");
-            if (isDiegoA) return -1; if (isDiegoB) return 1;
-
-            const urgenteA = a.tempoRestante <= 3 ? 1 : 0;
-            const urgenteB = b.tempoRestante <= 3 ? 1 : 0;
-            
-            if (urgenteA !== urgenteB) return urgenteB - urgenteA; // Prioriza urgentes
-            return a.tempoRestante - b.tempoRestante; // Menor tempo primeiro
-        });
-
-        document.getElementById('totalLojas').innerText = filtrados.length;
-
-        lista.innerHTML = filtrados.map(u => {
-            const isDiego = (u.nome || "").toLowerCase().includes("diego alves pinheiro");
-            const status = isDiego ? 'ativo' : (u.status || 'pendente');
-            
-            const diasFaltando = Math.floor(u.tempoRestante);
-            const porc = isDiego ? 100 : (u.tempoRestante / 30) * 100;
-            
-            let corBarra = 'var(--success)';
-            let cardClasse = '';
-            
-            if (!isDiego) {
-                if (u.tempoRestante <= 3) {
-                    corBarra = 'var(--danger)';
-                    cardClasse = 'card-urgente';
-                } else if (u.tempoRestante <= 10) {
-                    corBarra = 'var(--warning)';
-                }
-            } else {
-                corBarra = 'var(--vip-gold)';
+        if(confirm(msg)) {
+            try {
+                const lojistaRef = doc(db, "lojistas", uid);
+                await updateDoc(lojistaRef, {
+                    status: novoStatus
+                });
+            } catch (error) {
+                console.error("Erro ao atualizar status:", error);
+                alert("Erro ao processar comando.");
             }
-
-            return `
-            <div class="lojista-card shadow-sm ${isDiego ? 'card-vip' : cardClasse}">
-                <div class="card-top">
-                    <div class="avatar-box ${isDiego ? 'avatar-vip' : ''}">
-                        <i class="bi ${isDiego ? 'bi-patch-check-fill' : 'bi-shop'}"></i>
-                    </div>
-                    <div class="info-box flex-grow-1">
-                        <div class="d-flex justify-content-between">
-                            <h6 class="mb-0 fw-bold">${u.nome || 'Lojista'}</h6>
-                            <span class="badge-status ${status === 'ativo' ? 'status-active' : 'status-blocked'}">
-                                ${isDiego ? 'MASTER' : status}
-                            </span>
-                        </div>
-                        <p class="small text-muted mb-0">${u.email}</p>
-                    </div>
-                </div>
-
-                <div class="expiry-container">
-                    <div class="text-expiry">
-                        <span>${isDiego ? 'Acesso Vitalício' : 'Ciclo de Licença'}</span>
-                        <span style="color: ${corBarra}">${isDiego ? '∞ ILIMITADO' : diasFaltando + ' dias restantes'}</span>
-                    </div>
-                    <div class="progress-thin">
-                        <div class="progress-fill" style="width: ${porc}%; background: ${corBarra}"></div>
-                    </div>
-                </div>
-
-                ${!isDiego ? `
-                <div class="action-row">
-                    <button onclick="toggleStatus('${u.id}', '${status}')" class="btn-action bg-light">
-                        <i class="bi bi-power"></i> ${status === 'ativo' ? 'Bloquear' : 'Liberar'}
-                    </button>
-                    <button onclick="renovar('${u.id}')" class="btn-action" style="background:#eef2ff; color:var(--accent)">
-                        <i class="bi bi-arrow-repeat"></i> Renovar
-                    </button>
-                    <button onclick="remover('${u.id}')" class="btn-action bg-danger-subtle text-danger" style="flex:0.2">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>` : ''}
-            </div>`;
-        }).join('') || '<p class="text-center py-5 text-muted">Nenhuma loja encontrada.</p>';
-    };
-
-    window.toggleStatus = async (id, atual) => {
-        await updateDoc(doc(db, "usuarios", id), { status: atual === 'ativo' ? 'pendente' : 'ativo' });
-    };
-
-    window.renovar = async (id) => {
-        if(confirm("Deseja resetar o ciclo para 30 dias?")) {
-            await updateDoc(doc(db, "usuarios", id), { 
-                dataCadastro: new Date().toISOString(), 
-                status: 'ativo' 
-            });
-        }
-    };
-
-    window.remover = async (id) => {
-        if(confirm("Excluir conta permanentemente?")) {
-            await deleteDoc(doc(db, "usuarios", id));
         }
     };
 </script>
+
 </body>
 </html>
